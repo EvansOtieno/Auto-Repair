@@ -21,6 +21,7 @@ public class Role {
     @Column(unique = true)
     private RoleType name;  // Enum for role types (CAR_OWNER, MECHANIC, etc.)
 
+    @Column
     private String description;
 }
 
