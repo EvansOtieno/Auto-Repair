@@ -8,12 +8,14 @@ import com.eotieno.auto.user.model.User;
 import com.eotieno.auto.user.repository.RoleRepository;
 import com.eotieno.auto.user.repository.UserRepository;
 import com.eotieno.auto.user.security.JwtService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,6 +62,7 @@ public class AuthenticationService {
                 .or(() -> userRepository.findByPhoneNumber(request.getIdentifier()))
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder().token(jwtToken).build();
+        Claims claims = jwtService.extractAllClaims(jwtToken);
+        return AuthResponse.builder().token(jwtToken).expiry(claims.getExpiration().toInstant()).build();
     }
 }

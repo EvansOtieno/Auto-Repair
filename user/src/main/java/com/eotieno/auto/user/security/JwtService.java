@@ -1,5 +1,6 @@
 package com.eotieno.auto.user.security;
 
+import com.eotieno.auto.user.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -25,14 +26,15 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extraClaims, User userDetails) {
         return Jwts.builder()
                 .claims(extraClaims)
-                .subject(userDetails.getUsername())
+                .claim("userId", userDetails.getId())        // Custom claim for user ID
+                .subject(userDetails.getUsername() != null ? userDetails.getUsername() : userDetails.getPhoneNumber())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h expiry
                 .signWith(getSignInKey(), Jwts.SIG.HS256)
@@ -52,7 +54,7 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSignInKey())
                 .build()

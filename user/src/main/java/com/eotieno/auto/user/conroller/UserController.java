@@ -1,5 +1,7 @@
 package com.eotieno.auto.user.conroller;
 
+import com.eotieno.auto.user.dto.UserResponse;
+import com.eotieno.auto.user.exceptions.NotFoundException;
 import com.eotieno.auto.user.model.Role;
 import com.eotieno.auto.user.model.RoleType;
 import com.eotieno.auto.user.model.User;
@@ -27,6 +29,35 @@ public class UserController {
     @GetMapping("/{userId}/exists")
     public boolean userExists(@PathVariable Long userId) {
         return userRepository.existsById(userId);
+    }
+
+    @GetMapping("/{userId}")
+    public UserResponse user(@PathVariable Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User",userId.toString()));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail() == null ? "" : user.getPhoneNumber())
+                .roles(user.getRoles().stream()
+                        .map(role -> role.getName().name()) // Convert RoleType to String
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    @GetMapping("/username/{userName}")
+    public UserResponse user(@PathVariable String userName) {
+        var user = userRepository.findByEmail(userName)
+                .or(() -> userRepository.findByPhoneNumber(userName))
+                .orElseThrow(() -> new NotFoundException("User",userName));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail() == null ? "" : user.getPhoneNumber())
+                .roles(user.getRoles().stream()
+                        .map(role -> role.getName().name()) // Convert RoleType to String
+                        .collect(Collectors.toSet()))
+                .build();
     }
 
     @Operation(summary = "Get all roles for a user")

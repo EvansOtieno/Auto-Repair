@@ -35,14 +35,14 @@ public class SecurityConfig {
                                 .permitAll()
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/users/**").hasRole("SERVICES")
                         // Role-specific endpoints
                         .requestMatchers("/api/car-owner/**").hasRole("CAR_OWNER")
                         .requestMatchers("/api/mechanic/**").hasRole("MECHANIC")
                         .requestMatchers("/api/dealer/**").hasRole("PARTS_DEALER")
 
                         // Admin-only (optional)
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("SERVICES","ADMIN")
 
                         .anyRequest().authenticated()
                 )

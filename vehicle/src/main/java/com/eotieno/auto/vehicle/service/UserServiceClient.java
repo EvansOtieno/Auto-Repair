@@ -11,14 +11,25 @@ import java.util.Set;
 public interface UserServiceClient {
 
     // Check if user exists
-    @GetMapping("/{userId}/exists")
+    @GetMapping("/api/users/{userId}/exists")
     boolean userExists(@PathVariable Long userId);
 
-    // Get user role (assuming your UserResponse contains roles)
-    @GetMapping("/{userId}")
+    // Get user details
+    @GetMapping("/api/users/{userId}")
     UserResponse getUser(@PathVariable Long userId);
 
+    // OR if you have a dedicated endpoint for username
+    @GetMapping("/api/users/username/{userName}")
+    UserResponse getUser(@PathVariable String userName);
+
     // OR if you have a dedicated role endpoint
-    @GetMapping("/{userId}/role")
+    @GetMapping("/api/users/{userId}/roles")
     Set<String> getUserRoles(@PathVariable Long userId);
+
+//    @FeignClient(name = "user-service", configuration = FeignConfig.class)
+//    public interface UserServiceClient {
+//        @GetMapping("/api/users/{id}")
+//        User getUser(@PathVariable Long id);
+//    }
+
 }
