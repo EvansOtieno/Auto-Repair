@@ -28,6 +28,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors // 👈 ADD THIS
+                        .configurationSource(request -> {
+                            var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                            corsConfiguration.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
+                            corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                            corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                            corsConfiguration.setAllowCredentials(true);
+                            return corsConfiguration;
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**")
                                 .permitAll()

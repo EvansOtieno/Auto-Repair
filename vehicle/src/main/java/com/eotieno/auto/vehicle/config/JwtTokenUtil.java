@@ -1,5 +1,6 @@
 package com.eotieno.auto.vehicle.config;
 
+import com.eotieno.auto.vehicle.exceptions.JwtTokenException;
 import com.eotieno.auto.vehicle.service.UserServiceClient;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -34,7 +35,19 @@ public class JwtTokenUtil {
 
     // Extract username from token
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            return extractClaim(token, Claims::getSubject);
+        } catch (ExpiredJwtException ex) {
+            throw new JwtTokenException("Token has expired");
+        } catch (MalformedJwtException ex) {
+            throw new JwtTokenException("Invalid token format");
+        } catch (UnsupportedJwtException ex) {
+            throw new JwtTokenException("Token type not supported");
+        } catch (IllegalArgumentException ex) {
+            throw new JwtTokenException("Token cannot be empty or null");
+        } catch (JwtException ex) {
+            throw new JwtTokenException("Invalid token");
+        }
     }
 
     // Extract expiration date from token
@@ -49,11 +62,23 @@ public class JwtTokenUtil {
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSignInKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException ex) {
+            throw new JwtTokenException("Token expired - but here are the claims: " + ex.getClaims());
+        } catch (MalformedJwtException ex) {
+            throw new JwtTokenException("Invalid JWT structure");
+        } catch (UnsupportedJwtException ex) {
+            throw new JwtTokenException("Unsupported JWT token");
+        } catch (IllegalArgumentException ex) {
+            throw new JwtTokenException("JWT string cannot be empty or null");
+        } catch (JwtException ex) {
+            throw new JwtTokenException("Failed to process JWT token");
+        }
     }
 
     private Boolean isTokenExpired(String token) {

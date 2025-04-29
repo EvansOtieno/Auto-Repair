@@ -2,7 +2,7 @@ package com.eotieno.auto.vehicle.config;
 
 import com.eotieno.auto.vehicle.dto.AuthRequest;
 import com.eotieno.auto.vehicle.dto.AuthResponse;
-import com.eotieno.auto.vehicle.service.UserAuthClient;
+import com.eotieno.auto.vehicle.service.UserServiceClient;
 import feign.RequestInterceptor;
 import lombok.Synchronized;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import java.time.Instant;
 @Configuration
 public class FeignConfig {
     @Autowired
-    UserAuthClient userAuthClient;
+    UserServiceClient userService;
     private String cachedToken;
     private Instant tokenExpiry;
 
@@ -41,7 +41,7 @@ public class FeignConfig {
                 .password(servicePassword)
                 .build();
 
-        AuthResponse response = userAuthClient.authenticate(request);
+        AuthResponse response = userService.authenticate(request);
         this.cachedToken = response.getToken();
         this.tokenExpiry = response.getExpiry().minusSeconds(60); // Refresh 1min before expiry
     }

@@ -18,7 +18,7 @@ public class Vehicle {
     private Long id;
 
     @Column(unique = true)
-    private String vin;  // Vehicle Identification Number
+    private String vin;
 
     private String make;
     private String model;

@@ -4,6 +4,7 @@ import com.eotieno.auto.user.dto.AuthRequest;
 import com.eotieno.auto.user.dto.AuthResponse;
 import com.eotieno.auto.user.dto.RegisterRequest;
 import com.eotieno.auto.user.model.Role;
+import com.eotieno.auto.user.model.RoleType;
 import com.eotieno.auto.user.model.User;
 import com.eotieno.auto.user.repository.RoleRepository;
 import com.eotieno.auto.user.repository.UserRepository;
@@ -63,6 +64,18 @@ public class AuthenticationService {
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         Claims claims = jwtService.extractAllClaims(jwtToken);
-        return AuthResponse.builder().token(jwtToken).expiry(claims.getExpiration().toInstant()).build();
+        // Extract role names
+        Set<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet()).stream().map(RoleType::name).collect(Collectors.toSet());
+
+        return AuthResponse.builder()
+                .id(user.getId())
+                .token(jwtToken)
+                .expiry(claims.getExpiration().toInstant())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .roles(roleNames)
+                .build();
     }
 }

@@ -36,7 +36,7 @@ public class JwtService {
                 .claim("userId", userDetails.getId())        // Custom claim for user ID
                 .subject(userDetails.getUsername() != null ? userDetails.getUsername() : userDetails.getPhoneNumber())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h expiry
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30min expiry
                 .signWith(getSignInKey(), Jwts.SIG.HS256)
                 .compact();
     }
