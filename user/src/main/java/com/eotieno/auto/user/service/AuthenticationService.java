@@ -31,10 +31,14 @@ public class AuthenticationService {
 
     public AuthResponse register(RegisterRequest request) {
         // Fetch roles from DB
-        Set<Role> roles = request.getRoles().stream()
+        /*Set<Role> roles = request.getRoles().stream()
                 .map(roleType -> roleRepository.findByName(roleType)
                         .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleType)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet());*/
+        Set<Role> roles = Set.of(
+                roleRepository.findByName(RoleType.valueOf(request.getRoles()))
+                        .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.getRoles()))
+        );
 
         var user = User.builder()
                 .roles(roles)

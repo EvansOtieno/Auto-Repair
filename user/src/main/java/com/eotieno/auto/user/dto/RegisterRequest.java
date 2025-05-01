@@ -22,5 +22,5 @@ public class RegisterRequest {
     private String email;
     private String password;
     private String address;
-    private Set<RoleType> roles;
+    private String roles;
 }
