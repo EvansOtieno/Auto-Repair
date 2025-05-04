@@ -1,16 +1,14 @@
 package com.eotieno.auto.vehicle.config;
 
 import com.eotieno.auto.vehicle.exceptions.JwtTokenException;
-import com.eotieno.auto.vehicle.service.UserServiceClient;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.function.Function;
 
 @Component
 public class JwtTokenUtil {
@@ -27,6 +25,16 @@ public class JwtTokenUtil {
         return Long.parseLong(userId);
     }
 
+
+    public boolean isTokenValid(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return !claims.getExpiration().before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     // Validate token
     public Boolean validateToken(String token, String userName) {
         final String username = extractUsername(token);
@@ -36,7 +44,7 @@ public class JwtTokenUtil {
     // Extract username from token
     public String extractUsername(String token) {
         try {
-            return extractClaim(token, Claims::getSubject);
+            return extractAllClaims(token).getSubject();
         } catch (ExpiredJwtException ex) {
             throw new JwtTokenException("Token has expired");
         } catch (MalformedJwtException ex) {
@@ -48,17 +56,6 @@ public class JwtTokenUtil {
         } catch (JwtException ex) {
             throw new JwtTokenException("Invalid token");
         }
-    }
-
-    // Extract expiration date from token
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    // Helper methods
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
     }
 
     public Claims extractAllClaims(String token) {
@@ -82,10 +79,12 @@ public class JwtTokenUtil {
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        Claims claims = extractAllClaims(token);
+        return !claims.getExpiration().before(new Date());
     }
 
     private SecretKey getSignInKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

@@ -2,20 +2,15 @@ package com.eotieno.auto.user.conroller;
 
 import com.eotieno.auto.user.dto.UserResponse;
 import com.eotieno.auto.user.exceptions.NotFoundException;
-import com.eotieno.auto.user.model.Role;
-import com.eotieno.auto.user.model.RoleType;
 import com.eotieno.auto.user.model.User;
 import com.eotieno.auto.user.repository.UserRepository;
+import com.eotieno.auto.user.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.velocity.exception.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,6 +20,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserRepository userRepository;
+    private final JwtService jwtService;
+
+    @GetMapping("/validate")
+    public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract the token from the Authorization header
+            String token = authHeader.substring(7); // Remove "Bearer " prefix
+
+            // Validate the token
+            boolean isValid = jwtService.isTokenValid(token);
+
+            return ResponseEntity.ok(isValid);
+        } catch (Exception e) {
+            return ResponseEntity.ok(false);
+        }
+    }
 
     @GetMapping("/{userId}/exists")
     public boolean userExists(@PathVariable Long userId) {
@@ -43,6 +54,39 @@ public class UserController {
                         .map(role -> role.getName().name()) // Convert RoleType to String
                         .collect(Collectors.toSet()))
                 .build();
+    }
+
+    @GetMapping("/{userIdAuthorized}")
+    public ResponseEntity<UserResponse> getUserById(
+            @PathVariable Long userId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            String token = authHeader.substring(7); // Remove "Bearer " prefix
+            if (!jwtService.isTokenValid(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User", userId.toString()));
+
+            UserResponse response = UserResponse.builder()
+                    .id(user.getId())
+                    .email(user.getEmail() == null ? "" : user.getEmail())
+                    .roles(user.getRoles().stream()
+                            .map(role -> role.getName().name())
+                            .collect(Collectors.toSet()))
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping("/username/{userName}")

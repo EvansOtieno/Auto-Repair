@@ -1,12 +1,13 @@
 package com.eotieno.auto.vehicle.conroller;
 
-import com.eotieno.auto.vehicle.config.JwtTokenUtil;
-import com.eotieno.auto.vehicle.dto.VehicleRequest;
-import com.eotieno.auto.vehicle.dto.VehicleResponse;
+import com.eotieno.auto.vehicle.dto.VehicleDto;
+import com.eotieno.auto.vehicle.entity.ServiceRecord;
 import com.eotieno.auto.vehicle.entity.Vehicle;
 import com.eotieno.auto.vehicle.service.VehicleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,44 +17,66 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VehicleController {
     private final VehicleService vehicleService;
-    private final JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public VehicleResponse registerVehicle(
-            @RequestBody VehicleRequest request,
-            @RequestHeader(value = "Authorization") String token,
-            @RequestParam Long ownerId) {
-        // Extract user ID from JWT
-        Long authenticatedUserId = jwtTokenUtil.getUserIdFromToken(token.substring(7));
-
-        Vehicle vehicle = vehicleService.registerVehicle(
-                request,
-                ownerId,
-                authenticatedUserId
-        );
-
-        return mapToResponse(vehicle);
-
+    public ResponseEntity<VehicleDto> createVehicle(
+            @RequestBody Vehicle vehicle,
+            @RequestHeader("Authorization") String authToken) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(vehicleService.createVehicle(vehicle));
     }
 
-    @GetMapping("/owner/{ownerId}")
-    public List<VehicleResponse> getVehiclesByOwner(@PathVariable Long ownerId) {
-        return vehicleService.getVehiclesByOwner(ownerId)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    @PostMapping("/owner/{ownerId}")
+    public ResponseEntity<List<VehicleDto>> getVehiclesByOwner(
+            @RequestParam Long ownerId,
+            @RequestHeader("Authorization") String authToken) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByOwnerId(ownerId));
     }
 
-    private VehicleResponse mapToResponse(Vehicle vehicle) {
-        return VehicleResponse.builder()
-                .id(vehicle.getId())
-                .vin(vehicle.getVin())
-                .make(vehicle.getMake())
-                .model(vehicle.getModel())
-                .year(vehicle.getYear())
-                .licensePlate(vehicle.getLicensePlate())
-                .ownerId(vehicle.getOwnerId())
-                .build();
+    @GetMapping("/{id}")
+    public ResponseEntity<VehicleDto> getVehicleById(
+            @PathVariable String id,
+            @RequestHeader("Authorization") String authToken) {
+        return vehicleService.getVehicleById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/vin/{vin}")
+    public ResponseEntity<VehicleDto> getVehicleByVin(
+            @PathVariable String vin,
+            @RequestHeader("Authorization") String authToken) {
+        return vehicleService.getVehicleByVin(vin)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Vehicle> updateVehicle(
+            @PathVariable String id,
+            @RequestBody Vehicle vehicle,
+            @RequestHeader("Authorization") String authToken) {
+        return vehicleService.updateVehicle(id, vehicle)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/service")
+    public ResponseEntity<Vehicle> addServiceRecord(
+            @PathVariable String id,
+            @RequestBody ServiceRecord serviceRecord,
+            @RequestHeader("Authorization") String authToken) {
+        return vehicleService.addServiceRecord(id, serviceRecord)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVehicle(
+            @PathVariable String id,
+            @RequestHeader("Authorization") String authToken) {
+        vehicleService.deleteVehicle(id);
+        return ResponseEntity.noContent().build();
     }
 }
+

@@ -1,29 +1,37 @@
 package com.eotieno.auto.vehicle.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "vehicles", indexes = {
-        @Index(name = "idx_vin", columnList = "vin", unique = true),
-        @Index(name = "idx_owner", columnList = "ownerId")
-})
+@Document(collection = "vehicles")
 public class Vehicle {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
-    private String vin;
+    private String id;
 
     private String make;
     private String model;
-    private Integer year;
+    private int year;
+    private String vin;
     private String licensePlate;
+    private String color;
 
-    private Long ownerId;  // References User Service's ID (not a FK)
+    // Service history
+    private List<ServiceRecord> serviceHistory = new ArrayList<>();
+
+    // Flexible data storage for additional vehicle details
+    private Map<String, Object> additionalDetails = new HashMap<>();
+
+    private Long ownerId;
 }
