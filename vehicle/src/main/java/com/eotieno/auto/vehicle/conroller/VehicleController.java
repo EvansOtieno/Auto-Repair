@@ -26,9 +26,9 @@ public class VehicleController {
                 .body(vehicleService.createVehicle(vehicle));
     }
 
-    @PostMapping("/owner/{ownerId}")
+    @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<VehicleDto>> getVehiclesByOwner(
-            @RequestParam Long ownerId,
+            @PathVariable Long ownerId,
             @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(vehicleService.getVehiclesByOwnerId(ownerId));
     }

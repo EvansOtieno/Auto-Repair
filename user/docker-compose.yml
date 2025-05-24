@@ -2,6 +2,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:latest
+    container_name: user-postgres
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -11,8 +12,21 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  mongodb:
+    image: mongo:latest
+    container_name: user-mongodb
+    ports:
+      - "27019:27017"  # Different port to avoid conflict with vehicle service
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: userprofiledb
+    volumes:
+      - mongodb_data:/data/db
+
   pgadmin:
     image: dpage/pgadmin4
+    container_name: user-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -21,16 +35,18 @@ services:
     depends_on:
       - postgres
 
-  app:
-    build: .
+  mongo-express:
+    image: mongo-express:latest
+    container_name: user-mongo-express
     ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
+      - "27020:8081"  # Different port to avoid conflict
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auto_db
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: rootpassword
+      ME_CONFIG_MONGODB_URL: mongodb://root:rootpassword@mongodb:27017/
+    depends_on:
+      - mongodb
 
 volumes:
   postgres_data:
+  mongodb_data:
