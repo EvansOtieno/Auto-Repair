@@ -1,4 +1,4 @@
-package com.eotieno.auto.user.conroller;
+package com.eotieno.auto.user.controller;
 
 import com.eotieno.auto.user.dto.AuthRequest;
 import com.eotieno.auto.user.dto.AuthResponse;

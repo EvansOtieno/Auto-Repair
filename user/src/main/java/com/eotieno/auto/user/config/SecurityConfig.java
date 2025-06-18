@@ -48,10 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**").hasRole("SERVICES")
                         // Role-specific endpoints
                         .requestMatchers("/api/car-owner/**").hasRole("CAR_OWNER")
-                        //.requestMatchers("/api/mechanic-profiles/**").hasRole("MECHANIC")
-                        .requestMatchers("/api/mechanic-profiles/**").permitAll()
+                        .requestMatchers("/api/mechanic-profiles/**").hasRole("MECHANIC")
                         .requestMatchers("/api/dealer/**").hasRole("PARTS_DEALER")
-
                         // Admin-only (optional)
                         .requestMatchers("/api/admin/**").hasAnyRole("SERVICES","ADMIN")
 

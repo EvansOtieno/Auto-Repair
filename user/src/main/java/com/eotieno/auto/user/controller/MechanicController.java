@@ -1,4 +1,4 @@
-package com.eotieno.auto.user.conroller;
+package com.eotieno.auto.user.controller;
 
 import com.eotieno.auto.user.model.mechanic.BusinessType;
 import com.eotieno.auto.user.model.mechanic.MechanicProfile;

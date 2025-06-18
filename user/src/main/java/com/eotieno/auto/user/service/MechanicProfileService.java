@@ -59,7 +59,7 @@ public class MechanicProfileService {
     }
 
     public MechanicProfile updateProfile(String id, MechanicProfile updatedProfile) {
-        return mechanicProfileRepository.findById(id)
+        return mechanicProfileRepository.findByUserId(id)
                 .map(existingProfile -> {
                     // Update fields
                     existingProfile.setBusinessName(updatedProfile.getBusinessName());
