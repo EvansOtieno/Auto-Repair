@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/dealer/**").hasRole("PARTS_DEALER")
                         // Admin-only (optional)
                         .requestMatchers("/api/admin/**").hasAnyRole("SERVICES","ADMIN")
-
+                        .requestMatchers("/api/service-providers/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

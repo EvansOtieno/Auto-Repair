@@ -11,6 +11,7 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,21 +42,9 @@ public interface MechanicProfileRepository extends MongoRepository<MechanicProfi
     // Find mobile mechanics
     List<MechanicProfile> findByMobileMechanicTrue();
 
-    // Find by city
-    @Query("{'location.city': ?0}")
-    List<MechanicProfile> findByCity(String city);
-
     // Find by state
     @Query("{'location.state': ?0}")
     List<MechanicProfile> findByState(String state);
-
-    // Find by specialization
-    @Query("{'specializations': {$in: [?0]}}")
-    List<MechanicProfile> findBySpecialization(String specialization);
-
-    // Find by service category
-    @Query("{'servicesOffered.category': ?0}")
-    List<MechanicProfile> findByServiceCategory(ServiceCategory category);
 
     // Find by minimum rating
     List<MechanicProfile> findByAverageRatingGreaterThanEqual(Double minRating);
@@ -78,18 +67,56 @@ public interface MechanicProfileRepository extends MongoRepository<MechanicProfi
     @Query("{'servicesOffered.category': ?0, 'location.city': ?1, 'isVerified': true}")
     List<MechanicProfile> findVerifiedMechanicsByServiceAndCity(ServiceCategory serviceCategory, String city);
 
-    // Paginated search by multiple criteria
-    @Query("{'businessName': {$regex: ?0, $options: 'i'}, 'isVerified': ?1}")
-    Page<MechanicProfile> findByBusinessNameRegexAndVerified(String businessNamePattern, Boolean isVerified, Pageable pageable);
-
-    // Count verified mechanics by city
-    @Query(value = "{'location.city': ?0, 'isVerified': true}", count = true)
-    Long countVerifiedMechanicsByCity(String city);
-
     // Find top rated mechanics (limit results)
     List<MechanicProfile> findTop10ByIsVerifiedTrueOrderByAverageRatingDesc();
 
-    // Find recently updated profiles
-    @Query("{'updatedAt': {$gte: ?0}}")
-    List<MechanicProfile> findRecentlyUpdated(java.time.LocalDateTime since);
+
+    // Custom queries for nearby search with additional filters
+    @Query("{ 'location.coordinates': { $near: { $geometry: { type: 'Point', coordinates: [?1, ?0] }, $maxDistance: ?2 } }, " +
+            "'isProfileComplete': true }")
+    List<MechanicProfile> findNearbyMechanics(Double latitude, Double longitude, Double radiusMeters);
+
+    @Query("{ 'location.coordinates': { $near: { $geometry: { type: 'Point', coordinates: [?1, ?0] }, $maxDistance: ?2 } }, " +
+            "'isProfileComplete': true, " +
+            "'location.coordinates': { $exists: true }, " +
+            "'servicesOffered.category': ?3 }")
+    List<MechanicProfile> findNearbyMechanicsByCategory(Double latitude, Double longitude, Double radiusMeters, ServiceCategory category);
+
+    @Query("{ 'location.coordinates': { $near: { $geometry: { type: 'Point', coordinates: [?1, ?0] }, $maxDistance: ?2 } }, " +
+            "'isProfileComplete': true, " +
+            "'location.coordinates': { $exists: true }, " +
+            "'servicesOffered.name': { $regex: ?3, $options: 'i' } }")
+    List<MechanicProfile> findNearbyMechanicsByServiceName(Double latitude, Double longitude, Double radiusMeters, String serviceName);
+
+    @Query("{ 'location.coordinates': { $near: { $geometry: { type: 'Point', coordinates: [?1, ?0] }, $maxDistance: ?2 } }, " +
+            "'isProfileComplete': true, " +
+            "'location.coordinates': { $exists: true }, " +
+            "'emergencyService': ?3 }")
+    List<MechanicProfile> findNearbyEmergencyMechanics(Double latitude, Double longitude, Double radiusMeters, Boolean emergencyService);
+
+    @Query("{ 'location.coordinates': { $near: { $geometry: { type: 'Point', coordinates: [?1, ?0] }, $maxDistance: ?2 } }, " +
+            "'isProfileComplete': true, " +
+            "'location.coordinates': { $exists: true }, " +
+            "'mobileMechanic': ?3 }")
+    List<MechanicProfile> findNearbyMobileMechanics(Double latitude, Double longitude, Double radiusMeters, Boolean mobileMechanic);
+
+    // Additional existing methods...
+    @Query("{ 'location.city': { $regex: ?0, $options: 'i' } }")
+    List<MechanicProfile> findByCity(String city);
+
+    @Query("{ 'specializations': { $in: [?0] } }")
+    List<MechanicProfile> findBySpecialization(String specialization);
+
+    @Query("{ 'servicesOffered.category': ?0 }")
+    List<MechanicProfile> findByServiceCategory(ServiceCategory category);
+
+    @Query("{ 'businessName': { $regex: ?0, $options: 'i' }, 'isVerified': ?1 }")
+    Page<MechanicProfile> findByBusinessNameRegexAndVerified(String businessName, Boolean isVerified, Pageable pageable);
+
+    @Query("{ 'location.city': { $regex: ?0, $options: 'i' }, 'isVerified': true }")
+    Long countVerifiedMechanicsByCity(String city);
+
+    @Query("{ 'updatedAt': { $gte: ?0 } }")
+    List<MechanicProfile> findRecentlyUpdated(LocalDateTime since);
+
 }

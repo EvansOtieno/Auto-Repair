@@ -37,7 +37,7 @@ public class VehicleController {
     public ResponseEntity<VehicleDto> getVehicleById(
             @PathVariable String id,
             @RequestHeader("Authorization") String authToken) {
-        return vehicleService.getVehicleById(id)
+        return vehicleService.getVehicleById(id).or(() -> vehicleService.getVehicleByVin(id))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

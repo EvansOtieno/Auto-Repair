@@ -26,6 +26,7 @@ public class Vehicle {
     private String vin;
     private String licensePlate;
     private String color;
+    Location location;
 
     // Service history
     private List<ServiceRecord> serviceHistory = new ArrayList<>();
@@ -34,4 +35,11 @@ public class Vehicle {
     private Map<String, Object> additionalDetails = new HashMap<>();
 
     private Long ownerId;
+
+    public double[] getLocationCoordinates() {
+        if (location != null && location.getCoordinates() != null) {
+            return location.getCoordinates().getCoordinates().stream().mapToDouble(Double::doubleValue).toArray();
+        }
+        return null;
+    }
 }

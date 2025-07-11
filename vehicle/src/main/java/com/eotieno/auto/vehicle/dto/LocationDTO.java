@@ -1,9 +1,10 @@
-package com.eotieno.auto.user.dto;
+package com.eotieno.auto.vehicle.dto;
+
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Data
 @Builder

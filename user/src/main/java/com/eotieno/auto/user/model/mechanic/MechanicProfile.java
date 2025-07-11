@@ -45,7 +45,6 @@ public class MechanicProfile {
     @Min(value = 0, message = "Years of experience cannot be negative")
     private Integer yearsOfExperience;
 
-    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private Location location;
 
     @NotBlank(message = "Contact phone is required")
@@ -92,9 +91,10 @@ public class MechanicProfile {
 
 
     public double[] getLocationCoordinates() {
-        if (location != null && location.getLongitude() != null && location.getLatitude() != null) {
-            return new double[]{location.getLongitude(), location.getLatitude()};
+        if (location != null && location.getCoordinates() != null) {
+            return location.getCoordinates().getCoordinates().stream().mapToDouble(Double::doubleValue).toArray();
         }
         return null;
     }
+
 }
