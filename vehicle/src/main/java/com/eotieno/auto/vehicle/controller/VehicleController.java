@@ -1,11 +1,10 @@
-package com.eotieno.auto.vehicle.conroller;
+package com.eotieno.auto.vehicle.controller;
 
 import com.eotieno.auto.vehicle.dto.VehicleDto;
 import com.eotieno.auto.vehicle.entity.ServiceRecord;
 import com.eotieno.auto.vehicle.entity.Vehicle;
 import com.eotieno.auto.vehicle.service.VehicleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

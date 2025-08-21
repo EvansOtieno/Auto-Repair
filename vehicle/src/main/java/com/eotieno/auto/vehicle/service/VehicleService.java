@@ -1,6 +1,7 @@
 package com.eotieno.auto.vehicle.service;
 
 import com.eotieno.auto.vehicle.config.JwtTokenUtil;
+import com.eotieno.auto.vehicle.dto.LocationDTO;
 import com.eotieno.auto.vehicle.dto.UserDto;
 import com.eotieno.auto.vehicle.dto.VehicleDto;
 import com.eotieno.auto.vehicle.dto.VehicleRequest;
@@ -13,6 +14,7 @@ import com.eotieno.auto.vehicle.repository.VehicleRepository;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -127,16 +129,21 @@ public class VehicleService {
     }
 
     private VehicleDto mapToVehicleDto(Vehicle vehicle) {
-        VehicleDto dto = new VehicleDto();
-        dto.setId(vehicle.getId());
-        dto.setMake(vehicle.getMake());
-        dto.setModel(vehicle.getModel());
-        dto.setYear(vehicle.getYear());
-        dto.setVin(vehicle.getVin());
-        dto.setLicensePlate(vehicle.getLicensePlate());
-        dto.setColor(vehicle.getColor());
-        dto.setOwnerId(vehicle.getOwnerId());
-        dto.setAdditionalDetails(vehicle.getAdditionalDetails());
-        return dto;
+        GeoJsonPoint point = vehicle.getLocation() != null ? vehicle.getLocation().getCoordinates() : null;
+
+        return  VehicleDto.builder()
+                .id(vehicle.getId())
+                .make(vehicle.getMake())
+                .model(vehicle.getModel())
+                .year(vehicle.getYear())
+                .vin(vehicle.getVin())
+                .licensePlate(vehicle.getLicensePlate())
+                .color(vehicle.getColor())
+                .additionalDetails(vehicle.getAdditionalDetails())
+                .location(LocationDTO.builder()
+                        .latitude(point != null ? point.getY() : null) // getY() = latitude
+                        .longitude(point != null ? point.getX() : null) // getX() = longitude
+                        .address(vehicle.getLocation() != null ? vehicle.getLocation().getAddress() : null)
+                        .build()).build();
     }
 }
