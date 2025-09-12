@@ -4,6 +4,7 @@ package com.eotieno.auto.booking.service;
 import com.eotieno.auto.booking.dto.AuthRequest;
 import com.eotieno.auto.booking.dto.AuthResponse;
 import com.eotieno.auto.booking.dto.UserDto;
+import com.eotieno.auto.booking.dto.serviceProvider.ServiceProviderDetailsDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,11 @@ public interface UserServiceClient {
 
     @GetMapping("/api/users/{userId}")
     UserDto getUserById(@PathVariable("userId") Long userId);
+
+    @GetMapping("/api/service-providers/{userId}")
+    ServiceProviderDetailsDTO getServiceProviderById(@PathVariable("userId") String userId);
+
+
 
 
 //    @FeignClient(name = "user-service", configuration = FeignConfig.class)

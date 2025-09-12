@@ -24,4 +24,10 @@ public class LocationDTO {
     private String zipCode;
     @NotNull(message = "Country is required")
     private String country;
+
+    public LocationDTO(double lat, double lng, String address) {
+        this.latitude = lat;
+        this.longitude = lng;
+        this.address = address;
+    }
 }
