@@ -1,5 +1,6 @@
 package com.eotieno.auto.booking.entity;
 
+import com.eotieno.auto.booking.dto.AppointmentStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -21,13 +22,7 @@ public class BookingRequest {
     private LocalTime preferredTime;
     private String issueDescription;
     private CustomerDetails customerDetails;
-    private Status status;
-
-    public enum Status {
-        PENDING,
-        CONFIRMED,
-        CANCELLED
-    }
+    private AppointmentStatus status;
 
     @Data
     @NoArgsConstructor

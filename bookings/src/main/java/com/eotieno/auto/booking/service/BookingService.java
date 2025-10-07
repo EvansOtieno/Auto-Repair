@@ -1,5 +1,6 @@
 package com.eotieno.auto.booking.service;
 
+import com.eotieno.auto.booking.dto.AppointmentStatus;
 import com.eotieno.auto.booking.entity.Booking;
 import com.eotieno.auto.booking.repository.BookingRepository;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ public class BookingService {
 
     // Create a new booking (default status = PENDING)
     public Booking createBooking(Booking booking) {
-        booking.setStatus(Booking.Status.PENDING);
+        booking.setStatus(AppointmentStatus.PENDING);
         return bookingRepository.save(booking);
     }
 
@@ -53,13 +54,13 @@ public class BookingService {
 
     public void cancelBooking(Long id) {
         Booking booking = getBookingById(id);
-        booking.setStatus(Booking.Status.CANCELLED);
+        booking.setStatus(AppointmentStatus.CANCELLED);
         bookingRepository.save(booking);
     }
 
     public void confirmBooking(Long id) {
         Booking booking = getBookingById(id);
-        booking.setStatus(Booking.Status.CONFIRMED);
+        booking.setStatus(AppointmentStatus.CONFIRMED);
         bookingRepository.save(booking);
     }
 

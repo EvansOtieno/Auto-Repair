@@ -135,6 +135,8 @@ public class BookingController {
                 .invoiceUrl(null)
                 .createdAt(LocalDateTime.now())   // swap with auditing if you track
                 .updatedAt(LocalDateTime.now())
+                .preferredDate(booking.getPreferredDate())
+                .preferredTime(booking.getPreferredTime())
                 .build();
     }
 
